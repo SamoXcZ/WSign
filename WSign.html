@@ -1,0 +1,430 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>WSign</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one centered column, hero with phone on the right, bento feature grid, tabbed install panel, floating pill nav that mirrors the app's tab bar. */
+:root {
+  --bg: #000000;
+  --surface: #1c1c1e;
+  --surface-2: #2c2c2e;
+  --fg: #ffffff;
+  --muted: #8e8e93;
+  --line: rgba(255,255,255,0.10);
+  --pill: #ffffff;
+  --pill-fg: #000000;
+  --glow: rgba(255,255,255,0.07);
+  --display: "Geist", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f2f2f7; --surface: #ffffff; --surface-2: #e5e5ea; --fg: #000000; --muted: #6c6c70;
+    --line: rgba(0,0,0,0.10); --pill: #000000; --pill-fg: #ffffff; --glow: rgba(0,0,0,0.05);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f2f2f7; --surface: #ffffff; --surface-2: #e5e5ea; --fg: #000000; --muted: #6c6c70;
+  --line: rgba(0,0,0,0.10); --pill: #000000; --pill-fg: #ffffff; --glow: rgba(0,0,0,0.05);
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--display);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding-block: 28px 120px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { text-wrap: balance; letter-spacing: -0.02em; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; border-radius: 12px; }
+
+/* top bar */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.01em; text-decoration: none; }
+.brand .mini { width: 32px; height: 32px; border-radius: 9px; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; }
+.brand .mini svg { width: 20px; height: 20px; }
+.ver { font-family: var(--mono); font-size: 12px; color: var(--muted); border: 1px solid var(--line); padding: 5px 10px; border-radius: 999px; }
+
+/* hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); gap: 48px; align-items: center; padding-block: 56px 72px; }
+.icon-tile {
+  width: 104px; height: 104px; border-radius: 26px;
+  background: var(--surface); border: 1px solid var(--line);
+  display: grid; place-items: center;
+  box-shadow: 0 0 0 1px var(--line), 0 30px 80px -20px var(--glow);
+}
+.icon-tile svg { width: 66px; height: 66px; }
+h1 { font-size: clamp(44px, 9vw, 84px); font-weight: 800; line-height: 0.98; margin-top: 28px; }
+.lede { color: var(--muted); font-size: clamp(17px, 2.4vw, 21px); line-height: 1.45; margin-top: 18px; max-width: 30em; }
+.lede b { color: var(--fg); font-weight: 600; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 52px; padding: 0 26px; border-radius: 999px;
+  font: inherit; font-weight: 700; font-size: 16px; text-decoration: none; cursor: pointer;
+  border: 1px solid transparent; transition: transform .15s ease, opacity .15s ease;
+}
+.btn:active { transform: scale(0.97); }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.btn-primary { background: var(--pill); color: var(--pill-fg); }
+.btn-ghost { background: var(--surface); color: var(--fg); border-color: var(--line); }
+.btn-ghost:hover { background: var(--surface-2); }
+.btn-primary:hover { opacity: .88; }
+.fine { margin-top: 18px; font-size: 13px; color: var(--muted); }
+
+/* phone */
+.phone-col { display: flex; justify-content: center; }
+.phone {
+  width: min(100%, 290px); aspect-ratio: 9 / 18.5;
+  background: #000; border-radius: 44px; padding: 10px;
+  border: 1px solid var(--line);
+  box-shadow: 0 0 0 6px var(--surface), 0 50px 100px -30px var(--glow);
+  position: relative;
+}
+.screen { height: 100%; border-radius: 34px; background: #000; border: 1px solid rgba(255,255,255,0.08); padding: 40px 14px 14px; display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden; color: #fff; }
+.screen::before { content: ""; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 78px; height: 22px; border-radius: 99px; background: #111; border: 1px solid rgba(255,255,255,0.08); }
+.s-title { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-top: 4px; }
+.s-card { background: #1c1c1e; border-radius: 16px; padding: 12px; display: flex; gap: 10px; align-items: center; min-width: 0; }
+.s-ico { width: 38px; height: 38px; border-radius: 10px; background: #2c2c2e; display: grid; place-items: center; flex: none; }
+.s-ico svg { width: 20px; height: 20px; }
+.s-txt { min-width: 0; }
+.s-txt b { display: block; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s-txt span { display: block; font-size: 11.5px; color: #8e8e93; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.s-bar { height: 5px; border-radius: 9px; background: #2c2c2e; overflow: hidden; margin-top: 8px; }
+.s-bar i { display: block; height: 100%; width: 72%; background: #fff; border-radius: 9px; }
+.s-btn { margin-top: auto; background: #fff; color: #000; border-radius: 999px; text-align: center; font-weight: 700; font-size: 14px; padding: 13px 0; }
+.s-tabs { display: flex; justify-content: space-between; gap: 4px; background: #1c1c1e; border-radius: 999px; padding: 5px; font-size: 10.5px; font-weight: 700; color: #8e8e93; }
+.s-tabs span { flex: 1; text-align: center; padding: 8px 0; border-radius: 999px; }
+.s-tabs .on { background: #fff; color: #000; }
+.ex { position: absolute; bottom: -30px; left: 0; right: 0; text-align: center; font-size: 11px; color: var(--muted); font-family: var(--mono); }
+
+/* sections */
+section { padding-block: 48px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+h2 { font-size: clamp(30px, 5vw, 48px); font-weight: 800; line-height: 1.05; margin-top: 12px; }
+.sub { color: var(--muted); margin-top: 12px; max-width: 34em; font-size: 17px; }
+
+.grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; margin-top: 32px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 22px; grid-column: span 2; min-width: 0; }
+.card.wide { grid-column: span 4; }
+.card.half { grid-column: span 3; }
+.tile { width: 46px; height: 46px; border-radius: 13px; background: var(--bg); border: 1px solid var(--line); display: grid; place-items: center; margin-bottom: 18px; }
+.tile svg { width: 24px; height: 24px; stroke: var(--fg); fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.card h3 { font-size: 20px; font-weight: 700; }
+.card p { color: var(--muted); margin-top: 8px; font-size: 15.5px; line-height: 1.5; }
+.card code, .step code { font-family: var(--mono); font-size: 0.86em; background: var(--bg); border: 1px solid var(--line); padding: 1px 6px; border-radius: 7px; color: var(--fg); }
+
+/* install */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 28px; padding: 14px; margin-top: 32px; }
+.seg { display: flex; gap: 4px; background: var(--bg); border-radius: 999px; padding: 5px; border: 1px solid var(--line); overflow-x: auto; }
+.seg button { flex: 1 0 auto; border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 700; font-size: 14.5px; padding: 11px 18px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.seg button[aria-selected="true"] { background: var(--pill); color: var(--pill-fg); }
+.pane { padding: 26px 14px 16px; }
+.pane h3 { font-size: 22px; font-weight: 700; }
+.pane > p { color: var(--muted); margin-top: 8px; max-width: 36em; }
+.pane .cta { margin-top: 22px; }
+.copyrow { display: flex; gap: 10px; align-items: stretch; margin-top: 22px; flex-wrap: wrap; }
+.url { flex: 1 1 260px; min-width: 0; font-family: var(--mono); font-size: 13px; background: var(--bg); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; overflow-x: auto; white-space: nowrap; user-select: all; }
+.copyrow .btn { min-height: 48px; }
+.ol { margin: 22px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; counter-reset: s; }
+.ol li { counter-increment: s; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; color: var(--muted); }
+.ol li::before { content: counter(s); width: 30px; height: 30px; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); color: var(--fg); font-family: var(--mono); font-size: 13px; display: grid; place-items: center; }
+.ol li b { color: var(--fg); font-weight: 600; }
+
+/* guide */
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 32px; }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 22px; min-width: 0; }
+.step .where { font-family: var(--mono); font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.step .where i { font-style: normal; color: var(--fg); }
+.step h3 { font-size: 19px; font-weight: 700; margin-top: 14px; }
+.step p { color: var(--muted); margin-top: 8px; font-size: 15px; }
+.need { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+.chip { font-size: 13.5px; font-weight: 600; background: var(--surface); border: 1px solid var(--line); padding: 8px 14px; border-radius: 999px; }
+
+footer { margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 14px 28px; justify-content: space-between; color: var(--muted); font-size: 14px; }
+footer a { color: var(--fg); text-decoration: none; border-bottom: 1px solid var(--line); }
+footer .links { display: flex; gap: 20px; flex-wrap: wrap; }
+
+/* floating pill nav, same shape as the app's tab bar */
+.dock {
+  position: fixed; z-index: 20; left: 50%; transform: translateX(-50%);
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  display: flex; gap: 4px; padding: 6px; border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+  border: 1px solid var(--line);
+  max-width: calc(100vw - 32px);
+}
+.dock a { text-decoration: none; font-weight: 700; font-size: 14px; color: var(--muted); padding: 12px 20px; border-radius: 999px; white-space: nowrap; }
+.dock a.on { background: var(--pill); color: var(--pill-fg); }
+
+.back-row { padding-top: 32px; }
+.contact-head { padding-top: 36px; }
+.contact { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 32px; }
+.c-card { display: flex; flex-direction: column; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 24px; text-decoration: none; min-width: 0; transition: background .15s ease; }
+.c-card:hover { background: var(--surface-2); }
+.c-label { font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.c-handle { font-size: clamp(24px, 4vw, 32px); font-weight: 800; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.c-note { color: var(--muted); font-size: 15px; margin-top: 4px; }
+.include { padding: 26px; margin-top: 14px; }
+.include h3 { font-size: 20px; font-weight: 700; }
+#contact-page { padding-bottom: 24px; }
+
+@media (max-width: 880px) {
+  .hero { grid-template-columns: minmax(0, 1fr); gap: 64px; padding-block: 40px 56px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .card, .card.wide, .card.half { grid-column: span 1; }
+  .card.wide { grid-column: span 2; }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .grid, .steps { grid-template-columns: minmax(0, 1fr); }
+  .card.wide { grid-column: span 1; }
+  .btn { flex: 1 1 100%; }
+  .dock a { padding: 10px 12px; font-size: 13px; }
+  .contact { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .btn { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#top" id="top">
+      <span class="mini"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 28l8 8M14 28l-8 8"/><path d="M44 8c-7 0-12 8-12 18 0 9 3 16 8 16 5 0 7-6 6-14-1-9-3-14 4-20"/><path d="M34 34c4-8 8-12 14-12 4 0 4 6 4 10 0 4 2 6 8 4"/><path d="M6 52h52"/></svg></span>
+      WSign
+    </a>
+    <span class="ver">v1.0 (1) · iPhone &amp; iPad</span>
+  </header>
+
+  <main id="home">
+  <div class="hero">
+    <div>
+      <div class="icon-tile" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 28l8 8M14 28l-8 8"/><path d="M44 8c-7 0-12 8-12 18 0 9 3 16 8 16 5 0 7-6 6-14-1-9-3-14 4-20"/><path d="M34 34c4-8 8-12 14-12 4 0 4 6 4 10 0 4 2 6 8 4"/><path d="M6 52h52"/></svg>
+      </div>
+      <h1>Sign it.<br>Install it.<br>On your iPhone.</h1>
+      <p class="lede"><b>WSign</b> signs any .ipa with your own certificate and installs it, all inside one app. No computer, no cable.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="#install"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Install WSign</a>
+        <a class="btn btn-ghost" href="#guide">How it works</a>
+      </div>
+      <p class="fine">Needs your own .p12 certificate and provisioning profile.</p>
+    </div>
+
+    <div class="phone-col">
+      <div class="phone" role="img" aria-label="Example of the WSign Sign tab">
+        <div class="screen">
+          <div class="s-title">Sign</div>
+          <div class="s-card">
+            <div class="s-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10"/></svg></div>
+            <div class="s-txt"><b>MyApp.ipa</b><span>214 MB · com.example.myapp</span></div>
+          </div>
+          <div class="s-card">
+            <div class="s-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l3 3"/></svg></div>
+            <div class="s-txt"><b>Default certificate</b><span>Expires in 212 days</span></div>
+          </div>
+          <div class="s-card" style="display:block">
+            <div class="s-txt"><b>Signing…</b><span>Injecting tweak, packing IPA</span></div>
+            <div class="s-bar"><i></i></div>
+          </div>
+          <div class="s-btn">Sign &amp; Install</div>
+          <div class="s-tabs"><span>Files</span><span class="on">Sign</span><span>Settings</span></div>
+        </div>
+        <div class="ex">Example screen</div>
+      </div>
+    </div>
+  </div>
+
+  <section id="features">
+    <p class="eyebrow">Features</p>
+    <h2>Everything a signer needs, in one app.</h2>
+    <div class="grid">
+      <article class="card wide">
+        <div class="tile"><svg viewBox="0 0 24 24"><path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/></svg></div>
+        <h3>On-device signing</h3>
+        <p>Sign any <code>.ipa</code> with your own <code>.p12</code> certificate and provisioning profile, right on your iPhone. No computer, no cable.</p>
+      </article>
+      <article class="card">
+        <div class="tile"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v9M8.5 12.5 12 16l3.5-3.5"/></svg></div>
+        <h3>One-tap install</h3>
+        <p>Signed apps install straight onto this device from the Sign tab.</p>
+      </article>
+      <article class="card">
+        <div class="tile"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+        <h3>Built-in file manager</h3>
+        <p>Import files of any size, multi-GB IPAs included. Unzip, compress, rename, duplicate, share, and edit text and plist files.</p>
+      </article>
+      <article class="card">
+        <div class="tile"><svg viewBox="0 0 24 24"><path d="M12 3 4 7v10l8 4 8-4V7z"/><path d="M4 7l8 4 8-4M12 11v10"/></svg></div>
+        <h3>Pack as IPA</h3>
+        <p>Unzip an app, change what you need, and pack the Payload folder back into an installable IPA.</p>
+      </article>
+      <article class="card">
+        <div class="tile"><svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></div>
+        <h3>Tweak injection</h3>
+        <p>Inject <code>.dylib</code>, <code>.deb</code> and <code>.framework</code> files. A built-in CydiaSubstrate replacement lets most tweaks load without a jailbreak.</p>
+      </article>
+      <article class="card half">
+        <div class="tile"><svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></div>
+        <h3>Customize</h3>
+        <p>Keep the app's own bundle ID, name and version, or change them. Extra options: file sharing, removing extensions or the Watch app, and minimum iOS version.</p>
+      </article>
+      <article class="card half">
+        <div class="tile"><svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8-8M16 7l3 3"/></svg></div>
+        <h3>Certificates</h3>
+        <p>Keep several certificates, pick a default, and see when each one expires.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="install">
+    <p class="eyebrow">Install</p>
+    <h2>Get WSign on your device.</h2>
+    <p class="sub">WSign is shared as an unsigned IPA. Download it, sign it with your own certificate, and install it on your iPhone or iPad.</p>
+
+    <div class="panel">
+      <div class="pane">
+        <h3>Unsigned IPA</h3>
+        <p>There is no store listing or source to add. Grab the file and sign it yourself.</p>
+        <div class="cta">
+          <a class="btn btn-primary" id="lnk-ipa" href="#" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Install IPA</a>
+        </div>
+        <ol class="ol">
+          <li><span><b>Download the IPA</b> to your device.</span></li>
+          <li><span><b>Sign it</b> with your own <code>.p12</code> certificate and provisioning profile, using the signer you already have.</span></li>
+          <li><span><b>Install the signed app.</b> If iOS asks, trust the profile in Settings → General → VPN &amp; Device Management, then open WSign.</span></li>
+        </ol>
+      </div>
+    </div>
+    <p class="fine">Looking for a newer version? <a href="#contact">Contact the developer</a>.</p>
+  </section>
+
+  <section id="guide">
+    <p class="eyebrow">Using WSign</p>
+    <h2>Four taps from IPA to installed.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="where">Settings <i>→</i> Add Certificate</div>
+        <h3>Add your certificate</h3>
+        <p>Choose your <code>.p12</code>, enter its password, then pick the matching provisioning profile.</p>
+      </div>
+      <div class="step">
+        <div class="where">Files tab</div>
+        <h3>Import an app</h3>
+        <p>Bring in any <code>.ipa</code> from Files, Safari or another app. Size doesn't matter.</p>
+      </div>
+      <div class="step">
+        <div class="where">Tap the .ipa <i>→</i> Import to Sign</div>
+        <h3>Send it to Sign</h3>
+        <p>The app opens in the Sign tab with its name, bundle ID and version filled in.</p>
+      </div>
+      <div class="step">
+        <div class="where">Sign tab</div>
+        <h3>Check, sign, install</h3>
+        <p>Review the details, add tweaks if you want, then sign and install in one go.</p>
+      </div>
+    </div>
+    <div class="need">
+      <span class="chip">iPhone or iPad</span>
+      <span class="chip">Your own .p12 certificate</span>
+      <span class="chip">Provisioning profile</span>
+    </div>
+  </section>
+
+  </main>
+
+  <main id="contact-page" hidden>
+    <div class="back-row"><a class="btn btn-ghost" href="#top">← Back to WSign</a></div>
+    <section class="contact-head">
+      <p class="eyebrow">Contact</p>
+      <h2>Need an update or want something added?</h2>
+      <p class="sub">Message the developer directly. WSign is a one-person project, so the fastest way to be heard is a short message on Telegram or Twitter.</p>
+      <div class="contact">
+        <a class="c-card" href="https://t.me/slidecashh" rel="noopener">
+          <div class="tile"><svg viewBox="0 0 24 24"><path d="M21 4 3 11l6 2 2 6 3-4 5 4z"/><path d="M9 13l12-9"/></svg></div>
+          <span class="c-label">Telegram</span>
+          <span class="c-handle">@slidecashh</span>
+          <span class="c-note">Best for updates, bugs and feature requests.</span>
+        </a>
+        <a class="c-card" href="https://x.com/SamoXcZ" rel="noopener">
+          <div class="tile"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 12v1.5a2.5 2.5 0 0 0 5 0V12a9 9 0 1 0-3.5 7.1"/></svg></div>
+          <span class="c-label">Twitter</span>
+          <span class="c-handle">@SamoXcZ</span>
+          <span class="c-note">Good for news and quick questions.</span>
+        </a>
+      </div>
+      <div class="panel include">
+        <h3>What to include</h3>
+        <ol class="ol">
+          <li><span><b>Your WSign version</b>, shown in Settings → About. This page covers 1.0 (1).</span></li>
+          <li><span><b>Your iOS version</b> and device model.</span></li>
+          <li><span><b>What you want:</b> the update you are waiting for, the feature you would like, or the steps that caused the problem.</span></li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>WSign 1.0 (1) · Made by slidecashh</span>
+    <div class="links">
+      <a href="https://t.me/slidecashh" rel="noopener">Telegram @slidecashh</a>
+      <a href="https://x.com/SamoXcZ" rel="noopener">Twitter @SamoXcZ</a>
+    </div>
+  </footer>
+</div>
+
+<nav class="dock" aria-label="Page sections">
+  <a href="#features" data-s="features">Features</a>
+  <a href="#install" data-s="install">Install</a>
+  <a href="#guide" data-s="guide">Guide</a>
+  <a href="#contact" data-s="contact">Contact</a>
+</nav>
+
+<script>
+/* Set this to your GitHub link for the unsigned IPA. */
+var LINKS = { ipa: "https://your-domain.com/WSign.ipa" };
+
+document.getElementById("lnk-ipa").setAttribute("href", LINKS.ipa);
+
+/* two views: home and contact, switched by the hash */
+var home = document.getElementById("home");
+var contactPage = document.getElementById("contact-page");
+var links = Array.prototype.slice.call(document.querySelectorAll(".dock a"));
+function setOn(id) { links.forEach(function (a) { a.classList.toggle("on", a.getAttribute("data-s") === id); }); }
+function route() {
+  var h = location.hash.replace("#", "");
+  var isContact = h === "contact";
+  home.hidden = isContact;
+  contactPage.hidden = !isContact;
+  if (isContact) { setOn("contact"); window.scrollTo(0, 0); return; }
+  var target = h && h !== "top" ? document.getElementById(h) : null;
+  if (target) { target.scrollIntoView(); setOn(h); }
+  else { window.scrollTo(0, 0); setOn("features"); }
+}
+window.addEventListener("hashchange", route);
+route();
+
+/* dock highlight while scrolling the home view */
+if ("IntersectionObserver" in window) {
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting && !home.hidden) setOn(e.target.id); });
+  }, { rootMargin: "-40% 0px -50% 0px" });
+  ["features", "install", "guide"].forEach(function (id) { io.observe(document.getElementById(id)); });
+}
+</script>
+
+</body></html>
